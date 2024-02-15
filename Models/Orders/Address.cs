@@ -1,4 +1,4 @@
-﻿namespace Homezmart.Models
+﻿namespace Homezmart.Models.Orders
 {
     public class Address
     {
@@ -13,7 +13,7 @@
 
         public string ZipCode { get; set; } = string.Empty;
 
-        public int OrderId { get; set; } 
+        public int OrderId { get; set; }
         public Order Order { get; set; } = null!;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Homezmart.DTO;
 using Homezmart.Models;
+using Homezmart.Models.DatabaseContext;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Homezmart.Controllers
@@ -8,8 +9,8 @@ namespace Homezmart.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly AppDBContext _context;
-        public ProductsController(AppDBContext context)
+        private readonly AppDbContext _context;
+        public ProductsController(AppDbContext context)
         {
             _context = context;
         }
@@ -28,29 +29,50 @@ namespace Homezmart.Controllers
             return Ok(product);
         }
 
-        [HttpPost("{CategoryId}/{SubCategoryId}")]
+
+        [HttpPost("{CategoryId}")]
         public IActionResult PostProduct(int CategoryId, int? SubCategoryId,ProductDto product)
         {
+            var category = _context.Categories.Find(CategoryId);
+            if (category == null)
+            {
+                return NotFound();
+            }
+
+            if (SubCategoryId != null)
+            {
+                var subCategory = _context.Subcategories.Find(SubCategoryId);
+                if (subCategory == null)
+                {
+                    return NotFound();
+                }
+            }
+
             var newProduct = new Product
             {
                 ProductName = product.ProductName,
                 ProductDescription = product.ProductDescription,
                 Price = product.Price, 
-                StockQuantity = product.StockQuantity
+                StockQuantity = product.StockQuantity, 
+                CategoryId = category.Id,
+                SubcategoryId = SubCategoryId
             };
+
+
             _context.Products.Add(newProduct);
             _context.SaveChanges();
             return Ok(newProduct);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult PutProduct(int id, Product updatedProduct)
+        [HttpPut("{ProductId}")]
+        public IActionResult PutProduct(int ProductId, ProductDto updatedProduct)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.FirstOrDefault(p => p.Id == ProductId);
             if (product == null)
             {
                 return NotFound();
             }
+
             product.ProductName = updatedProduct.ProductName;
             product.ProductDescription = updatedProduct.ProductDescription;
             product.Price = updatedProduct.Price;
@@ -61,10 +83,10 @@ namespace Homezmart.Controllers
             return Ok(product);
         }
 
-        [HttpPut("UpdateProductSubCategory")] 
-        public IActionResult UpdateProductSubCategory(int id, int SubCategoryId)
+        [HttpPut("UpdateProductSubCategory/{ProductId}/{SubcategoryId}")] 
+        public IActionResult UpdateProductSubCategory(int ProductId, int SubCategoryId)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.FirstOrDefault(p => p.Id == ProductId);
             if (product == null)
             {
                 return NotFound();
@@ -82,10 +104,10 @@ namespace Homezmart.Controllers
             return Ok(product);
         }
 
-        [HttpPut("UpdateProductCategory")]
-        public IActionResult UpdateProductCategory(int id, int CategoryId)
+        [HttpPut("UpdateProductCategory/{ProductId}/{CategoryId}")]
+        public IActionResult UpdateProductCategory(int ProductId, int CategoryId)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.FirstOrDefault(p => p.Id == ProductId);
             if (product == null)
             {
                 return NotFound();
@@ -104,10 +126,10 @@ namespace Homezmart.Controllers
         }
 
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(int id)
+        [HttpDelete("{ProductId}")]
+        public IActionResult DeleteProduct(int ProductId)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _context.Products.FirstOrDefault(p => p.Id == ProductId);
             if (product == null)
             {
                 return NotFound();

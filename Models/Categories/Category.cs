@@ -1,4 +1,4 @@
-﻿namespace Homezmart.Models
+﻿namespace Homezmart.Models.Categories
 {
     public class Category
     {

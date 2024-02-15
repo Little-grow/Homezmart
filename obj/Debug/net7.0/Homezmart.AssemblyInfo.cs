@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Homezmart")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6f3a2066ac5b4ca954848549efb264a7b06c0ec3")]
 [assembly: System.Reflection.AssemblyProductAttribute("Homezmart")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Homezmart")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

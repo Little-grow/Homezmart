@@ -254,3 +254,7 @@ E:\Homezmart\bin\Debug\net7.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
 E:\Homezmart\bin\Debug\net7.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 E:\Homezmart\bin\Debug\net7.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 E:\Homezmart\bin\Debug\net7.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+E:\Homezmart\obj\Debug\net7.0\Homezmart.sourcelink.json
+E:\Homezmart\bin\Debug\net7.0\Homezmart.postman.json
+E:\Homezmart\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\Homezmart\bin\Debug\net7.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll

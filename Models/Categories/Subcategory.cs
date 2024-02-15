@@ -1,4 +1,4 @@
-﻿namespace Homezmart.Models
+﻿namespace Homezmart.Models.Categories
 {
     public class Subcategory
     {
@@ -7,6 +7,6 @@
 
         public int CategoryId { get; set; }
 
-        public List<Product> Products { get; set; } =null!;
+        public List<Product> Products { get; set; } = null!;
     }
 }

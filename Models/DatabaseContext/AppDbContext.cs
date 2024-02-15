@@ -1,11 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Homezmart.Models.Categories;
+using Homezmart.Models.Orders;
+using Homezmart.Models.Users;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
-namespace Homezmart.Models
+
+namespace Homezmart.Models.DatabaseContext
 {
-    public class AppDBContext : DbContext
-    {
-        public AppDBContext(DbContextOptions<AppDBContext> options) :
-            base(options)
+    public class AppDbContext : IdentityDBContext
+    {   
+        public AppDbContext() :
+            base("name=AppDbContext")
         {
 
         }
@@ -36,7 +41,6 @@ namespace Homezmart.Models
         }
 
         public DbSet<Product> Products { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }

@@ -1,5 +1,6 @@
 ﻿using Homezmart.DTO;
-using Homezmart.Models;
+using Homezmart.Models.Categories;
+using Homezmart.Models.DatabaseContext;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Composition;
@@ -10,26 +11,44 @@ namespace Homezmart.Controllers
     [ApiController]
     public class SubcategoriesController : ControllerBase
     {
-        private readonly AppDBContext _context;
+        private readonly AppDbContext _context;
 
-        public SubcategoriesController(AppDBContext context)
+        public SubcategoriesController(AppDbContext context)
         {
             _context = context;
         }
 
 
-        [HttpGet("{id}")]
-        public IActionResult GetSubcategory(int id)
+        [HttpGet]
+        public IActionResult GetSubcategories()
         {
-            var subcategory = _context.Subcategories
+            var subcategories = _context.Subcategories
                                 .Include(sub => sub.Products)
-                                .FirstOrDefault(sub => sub.Id == id);
-            return Ok(subcategory);
+                                .ToList();
+            return Ok(subcategories);
+        }
+
+        [HttpGet("category/{categoryId}")]
+        public IActionResult GetSubcategoriesByCategory(int categoryId)
+        {
+            var subcategories = _context.Subcategories
+                                .Where(sub => sub.CategoryId == categoryId)
+                                .ToList();
+            return Ok(subcategories);
         }
 
 
-        [HttpPost("{CategoryId}")]
-        public IActionResult PostSubCategory(SubcategoryDto subcategory) 
+        [HttpGet("{subcategoryId}")]
+        public IActionResult GetSubcategoryById(int subcategoryId)
+        {
+            var subcategory = _context.Subcategories
+                                .Include(sub => sub.Products)
+                                .FirstOrDefault(sub => sub.Id == subcategoryId);
+            return Ok(subcategory);
+        }
+
+        [HttpPost]
+        public IActionResult PostSubCategory(SubcategoryDto subcategory)
         {
             var category = _context.Categories.FirstOrDefault(c => c.Id == subcategory.CategoryId);
 
@@ -51,26 +70,25 @@ namespace Homezmart.Controllers
             return Ok(subcategory);
         }
 
-
-        [HttpPut("{id}")]
-        public IActionResult PutSubcategory(int id, Subcategory subcategory )
+        [HttpPut("{SubcategoryId}")]
+        public IActionResult PutSubcategory(int SubcategoryId, SubcategoryDto updatedSubcategory)
         {
-            var sub = _context.Subcategories.FirstOrDefault(sub => sub.Id == id);
-            if (sub == null)
+            var subcategory = _context.Subcategories.FirstOrDefault(sub => sub.Id == SubcategoryId);
+            if (subcategory == null)
             {
                 return NotFound();
             }
 
-            sub.SubcategoryName = subcategory.SubcategoryName;
+            subcategory.SubcategoryName = updatedSubcategory.SubcategoryName;
+            subcategory.CategoryId = updatedSubcategory.CategoryId;
             _context.SaveChanges();
-            return Ok(sub);
+            return Ok(subcategory);
         }
 
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteSubcategory(int id)
+        [HttpDelete("{SubcategoryId}")]
+        public IActionResult DeleteSubcategory(int SubcategoryId)
         {
-            var subcategory = _context.Subcategories.FirstOrDefault(sub => sub.Id == id);
+            var subcategory = _context.Subcategories.FirstOrDefault(sub => sub.Id == SubcategoryId);
             if (subcategory == null)
             {
                 return NotFound();

@@ -1,5 +1,6 @@
 ﻿using Homezmart.DTO;
-using Homezmart.Models;
+using Homezmart.Models.Categories;
+using Homezmart.Models.DatabaseContext;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +12,8 @@ namespace Homezmart.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly AppDBContext _context;
-        public CategoriesController(AppDBContext context)
+        private readonly AppDbContext _context;
+        public CategoriesController(AppDbContext context)
         {
             _context = context;
         }

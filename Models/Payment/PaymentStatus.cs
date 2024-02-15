@@ -1,4 +1,4 @@
-﻿namespace Homezmart.Models
+﻿namespace Homezmart.Models.Payment
 {
     public enum PaymentStatus
     {

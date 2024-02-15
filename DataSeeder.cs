@@ -1,11 +1,13 @@
 ﻿using Homezmart.Models;
+using Homezmart.Models.Categories;
+using Homezmart.Models.DatabaseContext;
 
 namespace Homezmart
 {
     // DataSeeder
     public static class DataSeeder
     {
-        public static void SeedData(AppDBContext context)
+        public static void SeedData(AppDbContext context)
         {
             // Ensure the database is created
             context.Database.EnsureCreated();
@@ -60,7 +62,7 @@ namespace Homezmart
                     {
                       ProductName = "iPhone 15",
                       ProductDescription = "Latest iPhone model",
-                      Price = 999.99f,
+                      Price = 99999,
                       StockQuantity = 100, 
                       CategoryId = category.Id,
                       SubcategoryId = Subcategories[0].Id   
@@ -70,7 +72,7 @@ namespace Homezmart
                     {
                       ProductName = "Samsung Galaxy S21",
                       ProductDescription = "Latest Samsung Galaxy model",
-                      Price = 899.99f,
+                      Price = 89999,
                       StockQuantity = 100, 
                       CategoryId = category.Id,
                       SubcategoryId = Subcategories[0].Id
@@ -80,7 +82,7 @@ namespace Homezmart
                     {
                       ProductName = "MacBook Pro",
                       ProductDescription = "Latest MacBook model",
-                      Price = 1999.99f,
+                      Price = 199999,
                       StockQuantity = 100, 
                       CategoryId = category.Id,
                       SubcategoryId = Subcategories[1].Id
@@ -91,7 +93,7 @@ namespace Homezmart
                     {
                       ProductName = "iPad Pro",
                       ProductDescription = "Latest iPad model",
-                      Price = 799.99f,
+                      Price = 79999,
                       StockQuantity = 100, 
                       CategoryId = category.Id,
                       SubcategoryId = Subcategories[0].Id
@@ -101,7 +103,7 @@ namespace Homezmart
                     {
                       ProductName = "Apple Watch Series 6",
                       ProductDescription = "Latest Apple Watch model",
-                      Price = 399.99f,
+                      Price = 39999,
                       StockQuantity = 100,
                       CategoryId = category.Id,
                       SubcategoryId = Subcategories[3].Id
@@ -111,7 +113,7 @@ namespace Homezmart
                     {
                       ProductName = "AirPods Pro",
                       ProductDescription = "Latest AirPods model",
-                      Price = 199.99f,
+                      Price = 19999,
                       StockQuantity = 100, 
                       CategoryId = category.Id,
                       SubcategoryId = Subcategories[4].Id
