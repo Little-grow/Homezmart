@@ -1,6 +1,8 @@
 ﻿using Homezmart.DTO;
 using Homezmart.Models.Categories;
 using Homezmart.Models.DatabaseContext;
+using Homezmart.Services.CategoriesServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,34 +10,34 @@ using System.ComponentModel;
 
 namespace Homezmart.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        public CategoriesController(AppDbContext context)
+        private readonly ICategoryService _categoryService;
+        public CategoriesController(ICategoryService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
+
+        // CRUD operations using category service
 
         [HttpGet]
         public IActionResult GetCategories()
         {
-            var categories = _context.Categories
-                             .Include(c => c.Subcategories)
-                             .Include(c => c.Products)
-                             .ToList();
+            var categories = _categoryService.GetCategories();
+            if (categories == null)
+            {
+                return NotFound();
+            }
             return Ok(categories);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetCategory(int id)
         {
-            var category = _context.Categories
-                            .Include(c => c.Subcategories)
-                            .Include(c => c.Products)
-                            .FirstOrDefault(c => c.Id == id);
-
+            var category = _categoryService.GetCategory(id);
             if (category == null)
             {
                 return NotFound();
@@ -44,41 +46,37 @@ namespace Homezmart.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostCategory(CategoryDto category)
+        public IActionResult AddCategory(CategoryDto category)
         {
-            var newCategory = new Category
+            var newCategory = _categoryService.PostCategory(category);
+            if (newCategory == null)
             {
-                CategoryName = category.CategoryName
-            };
-            _context.Categories.Add(newCategory);
-            _context.SaveChanges();
+                return BadRequest();
+            }
             return Ok(newCategory);
         }
 
         [HttpPut("{id}")]
-        public IActionResult PutCategory(int id, CategoryDto updatedCategory)
+        public IActionResult UpdateCategory(int id, CategoryDto updatedCategory)
         {
-            var category = _context.Categories.FirstOrDefault(c => c.Id == id);
+            var category = _categoryService.PutCategory(id, updatedCategory);
             if (category == null)
             {
                 return NotFound();
             }
-            category.CategoryName = updatedCategory.CategoryName;
-            _context.SaveChanges();
             return Ok(category);
         }
 
         [HttpDelete("{id}")]
         public IActionResult DeleteCategory(int id)
         {
-            var category = _context.Categories.FirstOrDefault(c => c.Id == id);
+            var category = _categoryService.DeleteCategory(id);
             if (category == null)
             {
                 return NotFound();
             }
-            _context.Categories.Remove(category);
-            _context.SaveChanges();
             return Ok(category);
         }
+
     }
 }

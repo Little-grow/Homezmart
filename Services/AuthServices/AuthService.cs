@@ -1,58 +1,122 @@
-﻿using Homezmart.Services.ServiceModels;
+﻿using Homezmart.Models.Users;
+using Homezmart.Services.ServiceModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace Homezmart.Services.AuthServices
 {
     public class AuthService : IAuthService
     {
-        private IConfiguration _config;
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
         private JWT _jwt;
 
-        public AuthService(IConfiguration config, JWT jwt)
+        public AuthService(JWT jwt, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
         {
-            _config = config;
             _jwt = jwt;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
-
-
-        public AuthModel Login(LoginRequest request)
-        {
-            AuthModel authModel = new();
-
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var SecToken = new JwtSecurityToken
-            (
-               issuer: _jwt.Issuer,
-               audience: _jwt.Audience,
-               signingCredentials: credentials,
-               expires: DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes)
-            );
-
-            var token = new JwtSecurityTokenHandler().WriteToken(SecToken);
-
-
-            authModel.Email = request.Email;
-            authModel.UserName = request.UserName;
-            authModel.isAuth = true;
-            authModel.Token = token;
-            authModel.ExpiresOn = SecToken.ValidTo;
-
-            return authModel;
-        }
-
+        //This method is used to generate a token for the user
         public AuthModel GenerateToken(TokenRequest request)
         {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwt.Key);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Email, request.Email),
+                    new Claim(ClaimTypes.Name, request.UserName),
+                    new Claim(ClaimTypes.Role, "User"),
+                    new Claim("id", new Guid().ToString())
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(_jwt.DurationInMinutes),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return new AuthModel
+            {
+                Token = tokenHandler.WriteToken(token),
+                ExpiresOn = tokenDescriptor.Expires.Value,
+                UserName = request.UserName,
+                Email = request.Email,
+                IsAuth = true,
+                Roles = { "User" }
+            };
             throw new NotImplementedException();
         }
 
-        public AuthModel Register(RegisterRquest rquest)
+        //This method is used to login the user
+        public async Task<AuthModel> Login(LoginRequest request)
         {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            if (user != null && await _userManager.CheckPasswordAsync(user, request.Password))
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                return GenerateToken(new TokenRequest
+                {
+                    Email = user.Email,
+                    UserName = user.UserName
+                });
+            }
+
+            return new AuthModel
+            {
+                Message = "Invalid Credentials",
+                IsAuth = false
+            };
+            throw new NotImplementedException();
+        }
+
+        public async Task<AuthModel> Register(RegisterRequest request)
+        {
+            if (await _userManager.FindByEmailAsync(request.Email) is not null || await _userManager.FindByNameAsync(request.UserName) is not null)
+            {
+                return new AuthModel
+                {
+                    Message = "User already exists",
+                    IsAuth = false
+                };
+            }
+
+            if (request.Password != request.ConfirmPassword)
+            {
+                return new AuthModel
+                {
+                    Message = "Password and Confirm Password do not match",
+                    IsAuth = false
+                };
+            }
+
+            var user = new AppUser
+            {
+                Email = request.Email,
+                UserName = request.UserName
+            };
+
+            var result = _userManager.CreateAsync(user, request.Password).Result;
+
+            if (!result.Succeeded)
+            {
+                return new AuthModel
+                {
+                    Message = "Invalid Credentials",
+                    IsAuth = false
+                };
+            }
+
+            return GenerateToken(new TokenRequest
+            {
+                Email = user.Email,
+                UserName = user.UserName
+            });
             throw new NotImplementedException();
         }
     }

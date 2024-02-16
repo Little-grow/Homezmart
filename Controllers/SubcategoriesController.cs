@@ -28,7 +28,7 @@ namespace Homezmart.Controllers
             return Ok(subcategories);
         }
 
-        [HttpGet("category/{categoryId}")]
+        [HttpGet("{categoryId}")]
         public IActionResult GetSubcategoriesByCategory(int categoryId)
         {
             var subcategories = _context.Subcategories

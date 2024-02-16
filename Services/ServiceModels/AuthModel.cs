@@ -4,7 +4,7 @@
     {
         public string Message { get; set; } = null!;
 
-        public bool isAuth { get; set; }
+        public bool IsAuth { get; set; }
 
         public string UserName { get; set; } = null!;
 

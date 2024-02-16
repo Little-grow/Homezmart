@@ -4,7 +4,7 @@ using Homezmart.Models.DatabaseContext;
 
 namespace Homezmart.Services.ProductServices
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
         private readonly AppDbContext _context;
         public ProductService(AppDbContext context)
@@ -122,5 +122,30 @@ namespace Homezmart.Services.ProductServices
             return product;
         }
         
+        public List<Product> GetProductsByCategory(int categoryId)
+        {
+            return _context.Products.Where(p => p.CategoryId == categoryId).ToList();
+        }
+
+        public List<Product> GetProductsBySubCategory(int subCategoryId)
+        {
+            return _context.Products.Where(p => p.SubcategoryId == subCategoryId).ToList();
+        }
+
+        public List<Product> SearchProductsbyPrice (int categoryId,decimal minPrice, decimal maxPrice)
+        {
+            var products = GetProductsByCategory(categoryId);
+            return products.Where(p => p.Price >= minPrice && p.Price <= maxPrice).ToList();
+        } 
+
+        public List<Product> SearchProductsbyName (string name)
+        {
+            return _context.Products.Where(p => p.ProductName.Contains(name)).ToList();
+        }
+
+        public List<Product> SearchProductsbyDescription (string description)
+        {
+            return _context.Products.Where(p => p.ProductDescription.Contains(description)).ToList();
+        }   
     }
 }

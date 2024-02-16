@@ -1,6 +1,9 @@
 using Homezmart;
 using Homezmart.Models.DatabaseContext;
 using Homezmart.Models.Users;
+using Homezmart.Services.AuthServices;
+using Homezmart.Services.CategoriesServices;
+using Homezmart.Services.ProductServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,21 +23,36 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
+builder.Services.AddDbContext<AppDbContext>
+    (optionsAction => optionsAction.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
-{
-    options.Password.RequiredUniqueChars = 1;
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequiredLength = 5;
-});
+
+// register the product service
 
 builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));
+ 
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(
-    op => {
-        op.TokenValidationParameters = new TokenValidationParameters {
+
+builder.Services.AddIdentity<AppUser, IdentityRole>(
+    op =>
+    {
+        op.Password.RequiredLength = 5;
+        op.Password.RequireDigit = true;
+        op.Password.RequireLowercase = true;
+    }).AddEntityFrameworkStores<AppDbContext>();
+
+
+
+builder.Services.AddAuthentication(options => { 
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(
+    op =>
+    {
+        op.RequireHttpsMetadata = false;
+        op.SaveToken = true;
+        op.TokenValidationParameters = new TokenValidationParameters
+        {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
@@ -45,9 +63,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         };
     });
 
+builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddSingleton<IProductService, ProductService>();
+builder.Services.AddSingleton<ICategoryService, CategoryService>();
+
 builder.Services.AddEndpointsApiExplorer();
 
-     
+
 var info = new OpenApiInfo()
 {
     Title = "Homezmart",
@@ -69,11 +91,11 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// Seed data
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
-var context = services.GetRequiredService<AppDbContext>();
-DataSeeder.SeedData(context);
+//// Seed data
+//using var scope = app.Services.CreateScope();
+//var services = scope.ServiceProvider;
+//var context = services.GetRequiredService<AppDbContext>();
+//DataSeeder.SeedData(context);
 
 
 // Configure the HTTP request pipeline.

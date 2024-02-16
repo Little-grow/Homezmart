@@ -1,49 +1,28 @@
 ﻿using Homezmart.Models.Categories;
 using Homezmart.Models.Orders;
 using Homezmart.Models.Users;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Homezmart.Models.DatabaseContext
 {
-    public class AppDbContext : IdentityDBContext
-    {   
-        public AppDbContext() :
-            base("name=AppDbContext")
-        {
-
-        }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Category>()
-                .HasMany(c => c.Subcategories)
-                .WithOne()
-                .HasForeignKey(s => s.CategoryId)
-                .IsRequired(true)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Category>()
-                .HasMany(c => c.Products)
-                .WithOne()
-                .HasForeignKey(p => p.CategoryId)
-                .IsRequired(true)
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<Subcategory>()
-                .HasMany(s => s.Products)
-                .WithOne()
-                .HasForeignKey(p => p.SubcategoryId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.NoAction);
-
-        }
-
+    public class AppDbContext : IdentityDbContext<AppUser>
+    {
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Subcategory> Subcategories { get; internal set; }
+
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<Product>()
+                .HasIndex(p => p.Price);
+        }
     }
 }
